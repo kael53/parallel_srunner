@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Parallel Scenario Runner</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Testing carla scenarios in parallel">
+  <meta name="keywords" content="carla, scenariorunner, carlaviz, autopilot, parallel">
+  <meta name="author" content="Muhammed Kerem Kahraman">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hint.css/2.5.1/hint.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.css" integrity="sha512-9+eWL83icQU9EurxdlXQjhqhQbq/wtbpoQZiWp73jXRHw5cIshFkSw5/d0XOXuQe9AjmWeOQfvdgu/WAA4KDVw==" crossorigin="anonymous" />
+  <!--  <link rel="stylesheet" href="assets/css/docs.min.css"> -->
+  <!--  <link rel="stylesheet" href="assets/css/template.css?v=VERSION"> -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/locale/bootstrap-table-en-US.min.js" integrity="sha512-t6Sh/zpgdIfOQu4/mH8QUhK85SIU6t6pOI5eGcgHugj6k4m5S2tb96X6GKKa7b4fR9nV0tPOVpqbwPU6gaT6vQ==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/extensions/export/bootstrap-table-export.min.js" integrity="sha512-/FNmlYotTKJ+wpJlq9qR59YVWpl066ZQ5fcfKongJBMFmUI5dntupRW51qVigf8HWgs2R8gfI+zoJCpRP4yNtw==" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="logsModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title">Logs of</h1>
+				<h1 id="sname_logs" style="margin-left:10px; margin-right:10px;" class="modal-title">Scenario Name </h1>
+				<h1 id="port_logs" class="modal-title">Port</h1>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-6 stat">simulator<div id="simulator"></div></div>
+					<div class="col-md-6 stat">scenariorunner<div id="srunner"></div></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6 stat">carlaviz<div id="carlaviz"></div></div>
+					<div class="col-md-6 stat">autopilot<div id="autopilot"></div></div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="metricsModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title">Metrics of</h1>
+				<h1 id="sname_metrics" style="margin-left:10px; margin-right:10px;" class="modal-title">Scenario Name </h1>
+				<h1 id="port_metrics" class="modal-title">Port</h1>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-6 stat"><div id="disbtw"></div></div>
+					<div class="col-md-6 stat"><div id="dis2lc"></div></div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<style>
+.modal {
+    text-align: center;
+}
+body .modal-dialog { /* Width */
+    max-width: 100%;
+    width: auto !important;
+    display: inline-block;
+}
+
+  .view {
+    margin-right: 5px;
+  }
+  .metrics {
+    margin-right: 5px;
+  }
+  .logs {
+    margin-right: 5px;
+  }
+  .delete {
+    margin-right: 5px;
+  }
+  .add {
+    margin-left: 10px;
+  }
+  .remove {
+    margin-left: 20px;
+  }
+
+body {
+  position: relative;
+  margin: 40px;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 584px 584px 584px;
+  grid-gap: 10px;
+  background-color: #fff;
+  color: #444;
+}
+
+.stat {
+  background-color: #444;
+  color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  font-size: 150%;
+}
+
+table {
+  margin-top: 20px;
+}
+
+.btn {
+  margin-top: 20px;
+  margin-right: 20px;
+}
+table.table .form-control.error {
+    border-color: #f50000;
+}
+a[disabled] {
+   pointer-events: none;
+   cursor: default;
+}
+</style>
+
+<div class="wrapper">
+<div class="stat gpustat">GPU Statistics<div id="gpustat"></div></div>
+<div class="stat mem">Memory Statistics<div id="mem"></div></div>
+<div class="stat mpstat">CPU Statistics<div id="mpstat"></div></div>
+</div>
+
+<button id="add" type="button" class="btn btn-primary">Add</button>
+<button id="run" type="button" class="btn btn-success" disabled>Run</button>
+<button id="stop" type="button" class="btn btn-danger" disabled>Stop</button>
+<button id="clean" type="button" class="btn btn-info" disabled>Clean</button>
+
+<table
+  id="table"
+  data-minimum-count-columns="2"
+  data-id-field="id">
+</table>
+
+<script>
+var $table = $('#table');
+var $running = false;
+
+$('#clean').on('click', function (e) {
+$(this).attr('disabled', 'disabled');
+$('#run').attr('disabled', 'disabled');
+var port = [];
+var name = [];
+$table.bootstrapTable('getData').forEach(function (el) {
+	port.push(el.port);
+	name.push(el.name);
+});
+$.ajax({ 
+	url: '/clean',
+	type: 'post',
+	data: { port: port, name: name }
+});
+$table.bootstrapTable('removeAll');
+});
+
+$('#stop').on('click', function (e) {
+$(this).attr('disabled', 'disabled');
+$('#run').removeAttr('disabled');
+$('#clean').removeAttr('disabled');
+$('#add').removeAttr('disabled');
+$('.view').attr('disabled', 'disabled');
+$('.delete').removeAttr('disabled');
+$('.metrics').removeAttr('disabled');
+$('.logs').removeAttr('disabled');
+$.ajax({ url: '/sigint', type: 'post' });
+$running = false;
+});
+
+$('#run').on('click', function (e) {
+$(this).attr('disabled', 'disabled');
+$('#clean').attr('disabled', 'disabled');
+$('#add').attr('disabled', 'disabled');
+$('.delete').attr('disabled', 'disabled');
+$('.metrics').attr('disabled', 'disabled');
+$('.view').removeAttr('disabled');
+$('.logs').removeAttr('disabled');
+$('#stop').removeAttr('disabled');
+var port = [];
+var name = [];
+$table.bootstrapTable('getData').forEach(function (el) {
+	port.push(el.port);
+	name.push(el.name);
+});
+$.ajax({ 
+	url: '/run',
+	type: 'post',
+	data: { port: port, name: name }
+});
+setTimeout(() => { $running = true; }, 5000);
+});
+
+$('#add').on('click', function (e) {
+        $(this).attr('disabled', 'disabled');
+        var row = '<tr>' +
+            '<td><input type="text" class="form-control" name="Port" id="port_input"></td>' +
+            '<td><input type="text" class="form-control" name="Scenario Name" id="name_input"></td>' +
+            '<td style="text-align: center;">N/A</td>' +
+	    '<td><a class="add" href="javascript:void(0)" title="Add"><i class="fa fa-check"></i></a><a class="remove" href="javascript:void(0)" title="Remove"><i class="fa fa-times"></i></a></td>' +
+        '</tr>';
+    	$('#table').append(row);		
+});
+
+$(document).on('click', '.remove', function (e) {
+    $(this).parents('tr').remove();
+    $('#add').removeAttr('disabled');
+}); 
+
+$(document).on('click', '.add', function (e) {
+    var tableData = $table.bootstrapTable('getData');
+    var invalid = false;
+    var name_input = $('#name_input').val();
+    var port_input = parseInt($('#port_input').val());
+    var index = $("table tbody tr:last-child").index();
+    if (!name_input) {
+	$('#name_input').addClass('error');
+	invalid = true;
+    } else {
+	$('#name_input').removeClass('error');
+    }
+    if (!port_input || tableData.some(el => el.port === port_input)){
+	$('#port_input').addClass('error');
+        invalid = true;
+    } else {
+	$('#port_input').removeClass('error');
+    }
+    $(this).parents("tr").find(".error").first().focus();
+    if (!invalid) {	
+	$(this).parents('tr').remove();
+	$('#add').removeAttr('disabled');
+        $('#run').removeAttr('disabled');
+        $('#clean').removeAttr('disabled');
+	$table.bootstrapTable('insertRow', {index: index, row: {port: port_input, name: name_input, status: 'N/A'}});
+    }
+}); 
+
+function operateFormatter(value, row, index) {
+	return [
+		'<a class="view" href="javascript:void(0)" title="View" disabled>',
+		'<i class="fa fa-eye"></i>',
+		'</a>',
+		'<a class="metrics" href="javascript:void(0)" title="Metrics" disabled>',
+		'<i class="fa fa-line-chart"></i>',
+		'</a>',
+		'<a class="logs" href="javascript:void(0)" title="Logs" disabled>',
+		'<i class="fa fa-file-text"></i>',
+		'</a>',
+		'<a class="delete" href="javascript:void(0)" title="Delete">',
+		'<i class="fa fa-trash"></i>',
+		'</a>'
+	].join('');
+}
+
+window.operateEvents = {
+	'click .view': function(e, value, row, index) {
+                var port = row.port + 80;
+                window.open('http://localhost:'+port, '_blank');
+	},
+	'click .metrics': function(e, value, row, index) {
+                $('#sname_metrics').html(row.name);
+                $('#port_metrics').html(row.port);
+		$('#disbtw').html('<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>');
+		$('#dis2lc').html('<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>');
+                $('#metricsModal').modal('show');
+                $.ajax({
+			url: '/metrics',
+			type: 'post',
+			data: { name: row.name },
+			success: function(response) {
+				var resArr = response.split('\n');
+				$('#disbtw').html(resArr[0]);
+				$('#dis2lc').html(resArr[1]);
+			}
+		});
+	},
+	'click .logs': function(e, value, row, index) {
+		//alert('You click logs, row: ' + JSON.stringify(row));
+                $('#sname_logs').html(row.name);
+                $('#port_logs').html(row.port);
+                $('#logsModal').modal('show');
+	},
+	'click .delete': function(e, value, row, index) {
+		$.ajax({
+		        url: '/clean',
+        		type: 'post',
+        		data: { port: [row.port], name: [row.name] }
+		});
+		$table.bootstrapTable('remove', {field: '$index', values: [index]});
+		if ($table.bootstrapTable('getData').length == 0) {
+			$('#clean').attr('disabled', 'disabled');
+		}
+	}
+};
+
+function initTable() {
+	$table.bootstrapTable('destroy').bootstrapTable({
+		data: [],
+		columns: [{
+			title: 'Port',
+			field: 'port',
+			align: 'center',
+                        width: 100,
+			valign: 'middle'
+		}, {
+			field: 'name',
+			title: 'Scenario Name',
+                        width: 400,
+			align: 'center'
+		}, {
+			field: 'status',
+			title: 'Status',
+			align: 'center'
+		}, {
+			field: 'operate',
+			title: 'Operate',
+			align: 'center',
+                        width: 110,
+			events: window.operateEvents,
+			formatter: operateFormatter
+		}]
+	});
+}
+
+var arrLogs = ['simulator', 'srunner', 'carlaviz', 'autopilot'];
+var arrStats = ['gpustat', 'mem', 'mpstat'];
+
+setInterval(function() {
+    if ($('#logsModal').is(":hidden")) {
+    $.ajax({
+	url: "/stat",
+	type: "get",
+        dataType: "html",
+	success: function(response){
+		var resArr = response.split("\n"), i;
+		for(i = 0; i < resArr.length; i++) {
+			$("#"+arrStats[i]).html(resArr[i]);
+		}
+	}
+    });
+    var tableData = $table.bootstrapTable('getData');
+    var port = [];
+    tableData.forEach(function(el){port.push(el.port);});
+    if ($running) {
+    $.ajax({
+	url: "/status",
+	type: "post",
+        dataType: "text",
+	data: { port: port },
+	success: function(response){
+		var resArr = response.split(","), i, flag = true;
+		for(i = 0; i < resArr.length; i++) {
+			if (resArr[i] !== 'finished') flag = false;
+			if (tableData[i].status == 'N/A' && resArr[i] == 'finished') continue;
+			$table.bootstrapTable('updateCell', {index: i, field: 'status', value: resArr[i]});
+		}
+
+		if (flag) {
+			$('#stop').attr('disabled', 'disabled');
+			$('#run').removeAttr('disabled');
+			$('#clean').removeAttr('disabled');
+			$('#add').removeAttr('disabled');
+			$('.view').attr('disabled', 'disabled');
+			$('.delete').removeAttr('disabled');
+			$('.metrics').removeAttr('disabled');
+			$('.logs').removeAttr('disabled');
+			$running = false;			
+		} else {
+			$('#run').attr('disabled', 'disabled');
+			$('#clean').attr('disabled', 'disabled');
+			$('#add').attr('disabled', 'disabled');
+			$('.delete').attr('disabled', 'disabled');
+			$('.metrics').attr('disabled', 'disabled');
+			$('.view').removeAttr('disabled');
+			$('.logs').removeAttr('disabled');
+			$('#stop').removeAttr('disabled');
+			$running = true;
+		}
+	}
+    });
+    }
+    } else {
+    $.ajax({
+	url: "/screenlog",
+	type: "get",
+            data: {
+              port: parseInt($('#port').text()) || 2000
+            },
+        dataType: "html",
+	success: function(response){
+		var resArr = response.split("\n"), i;
+		for(i = 0; i < resArr.length; i++) {
+			$("#"+arrLogs[i]).html(resArr[i]);
+		}
+	}
+    });
+    }
+}, 1000);
+
+initTable();
+</script>
+
+</body>
+</html>
