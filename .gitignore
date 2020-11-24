@@ -1,0 +1,7 @@
+__pycache_/
+*.py[cod]
+*$py.class
+
+screenlog-carla*
+*.log
+*.json
