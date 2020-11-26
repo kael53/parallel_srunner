@@ -206,6 +206,11 @@ $table.bootstrapTable('getData').forEach(function (el) {
 	name.push(el.name);
 });
 $.ajax({ 
+	url: '/clean',
+	type: 'post',
+	data: { port: port, name: name }
+});
+$.ajax({ 
 	url: '/run',
 	type: 'post',
 	data: { port: port, name: name }
@@ -311,6 +316,7 @@ window.operateEvents = {
 		$table.bootstrapTable('remove', {field: '$index', values: [index]});
 		if ($table.bootstrapTable('getData').length == 0) {
 			$('#clean').attr('disabled', 'disabled');
+			$('#run').attr('disabled', 'disabled');
 		}
 	}
 };
@@ -406,7 +412,7 @@ setInterval(function() {
 	url: "/screenlog",
 	type: "get",
             data: {
-              port: parseInt($('#port').text()) || 2000
+              port: parseInt($('#port_logs').text()) || 2000
             },
         dataType: "html",
 	success: function(response){

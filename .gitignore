@@ -5,3 +5,4 @@ __pycache_/
 screenlog-carla*
 *.log
 *.json
+instances.txt

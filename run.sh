@@ -24,25 +24,40 @@ while IFS=$'\t' read -r -a params
 do
 echo "launching carla-simulator with port ${params[0]}"
 bash run_carla.sh ${params[0]}
+done < $1
 sleep 10
+while IFS=$'\t' read -r -a params
+do
+while ! screen -ls | grep "carla-simulator-${params[0]}" &> /dev/null; do sleep 1; done
 echo "launching carlaviz with carla-port ${params[0]} on localhost:$((${params[0]}+80))"
 bash run_carlaviz.sh ${params[0]}
-sleep 2
 done < $1
 
+echo "waiting carlaviz instances to be ready"
+while IFS=$'\t' read -r -a params
+do
+while ! cat "screenlog-carla-carlaviz-${params[0]}" | grep "Compiled successfully" &> /dev/null; do sleep 1; done
+done < $1
+
+sleep 2
 echo "preparing scenarios"
-sleep 10
+sleep 2
 
 while IFS=$'\t' read -r -a params
 do
+while ! screen -ls | grep "carla-simulator-${params[0]}" &> /dev/null; do sleep 1; done
 echo "launching autopilot with carla-port ${params[0]}"
 bash run_autopilot.sh ${params[0]}
-sleep 5
+done < $1
+sleep 2
+while IFS=$'\t' read -r -a params
+do
+while ! screen -ls | grep "carla-autopilot-${params[0]}" &> /dev/null; do sleep 1; done
 echo "launching scenario-runner with carla-port ${params[0]} scenario ${params[1]}"
 bash run_srunner.sh ${params[0]} ${params[1]}
-sleep 2
 done < $1
 
+sleep 2
 echo "waiting for scenarios to finish"
 while screen -ls | grep 'carla-srunner' &> /dev/null;
 do
