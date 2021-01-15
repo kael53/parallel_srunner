@@ -37,11 +37,11 @@ USER carla
 WORKDIR /app
 
 # Setup working environment
-ENV CARLA_ROOT="/opt/carla-simulator" SCENARIO_RUNNER_ROOT="/app/scenario_runner" FLASK_APP="/app/web.py" SDL_VIDEODRIVER=offscreen
+ENV CARLA_ROOT="/opt/carla-simulator" SCENARIO_RUNNER_ROOT="/app/scenario_runner" FLASK_APP="/app/web.py" SDL_VIDEODRIVER=offscreen \
+    LC_CTYPE="en_US.UTF-8" LANG="en_US.UTF-8"
 ENV PYTHONPATH="${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg"
 ENV PYTHONPATH="${PYTHONPATH}:${CARLA_ROOT}/PythonAPI/carla/agents"
 ENV PYTHONPATH="${PYTHONPATH}:${CARLA_ROOT}/PythonAPI/carla"
 ENV PYTHONPATH="${PYTHONPATH}:${CARLA_ROOT}/PythonAPI"
-ENV LC_CTYPE="en_US.UTF-8" LANG="en_US.UTF-8"
 
 CMD flask run

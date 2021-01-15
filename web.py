@@ -56,11 +56,11 @@ def status():
         if 'carla-simulator-'+ports[i] in output:
             if 'carla-autopilot-'+ports[i] in output:
                 if 'carla-srunner-'+ports[i] in output:
-                    # running
-                    response.append('running')
-                else:
                     # preparing
                     response.append('preparing')
+                else:
+                    # running
+                    response.append('running')
             else:
                 # starting
                 response.append('starting')

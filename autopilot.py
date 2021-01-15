@@ -199,13 +199,12 @@ class RadarSensor(object):
                 color=carla.Color(r, g, b))
 
 def main(args):
-    actor_list = []
+    sensor_list = []
+    vehicle = None
 
     try:
         client = carla.Client(args.host, args.port)
         client.set_timeout(2.0)
-        tm = client.get_trafficmanager(args.tm_port)
-        vehicle = None
 
         world = client.get_world()
 
@@ -233,23 +232,27 @@ def main(args):
         radar_sensor = RadarSensor(vehicle)
 
         # Store actors to destroy them later on
-        actor_list += [vehicle, collision_sensor.sensor, lane_invasion_sensor.sensor, gnss_sensor.sensor, imu_sensor.sensor, radar_sensor.sensor]
+        sensor_list = [collision_sensor.sensor, lane_invasion_sensor.sensor, gnss_sensor.sensor, imu_sensor.sensor, radar_sensor.sensor]
 
         print('setting autopilot on %s' % vehicle.type_id)
 
+        #tm = client.get_trafficmanager(args.tm_port)
         vehicle.set_autopilot(True, args.tm_port)
-        tm.distance_to_leading_vehicle(vehicle, 5)
+        #tm.distance_to_leading_vehicle(vehicle, 5)
         #tm.vehicle_percentage_speed_difference(vehicle, 20)
-        tm.auto_lane_change(vehicle, False)
+        #tm.auto_lane_change(vehicle, False)
 
         while len(world.get_actors().filter(vehicle.type_id)) > 0:
             pass
 
     finally:
-        print('destroying actors')
-        for actor in actor_list:
-            if actor is not None:
-                actor.destroy()
+        print('destroying sensors')
+        for sensor in sensor_list:
+            if sensor is not None:
+                sensor.stop()
+                sensor.destroy()
+        if vehicle is not None:
+            vehicle.destroy()
         print('done.')
 
 if __name__ == '__main__':
